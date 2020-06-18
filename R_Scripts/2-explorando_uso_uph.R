@@ -38,18 +38,36 @@ jose.df<- as.data.frame(jose)
 suacui <- readOGR(dsn = "./Data/USO_ANA", layer = "uph_suasui_grande_uso2", encoding = 'UTF-8')
 suacui.df<- as.data.frame(suacui)
 
-#area em km2 (a area original é dada em m2)
+
+#area em km2 (a area original é dada em m2) e inserir area total da UPH numa coluna
 
 guandu.df$area_km <-guandu.df$area2/1e+6 #em km2
-cara.df$area_km <- cara.df$area2/1e+6
-manhu.df$area_km <- manhu.df$area2/1e+6
-pira.df$area_km <- pira.df$area2/1e+6
-piranga.df$area_km <- piranga.df$area2/1e+6
-maria.df$area_km <- maria.df$area2/1e+6
-antonio.df$area_km <- antonio.df$area2/1e+6
-jose.df$area_km <- jose.df$area2/1e+6
-suacui.df$area_km <- suacui.df$area2/1e+6
+guandu.df$area_tot <- sum(guandu.df$area_km)
 
+cara.df$area_km <- cara.df$area2/1e+6
+cara.df$area_tot <- sum(cara.df$area_km)
+
+manhu.df$area_km <- manhu.df$area2/1e+6
+manhu.df$area_tot <- sum(manhu.df$area_km)
+
+pira.df$area_km <- pira.df$area2/1e+6
+pira.df$area_tot <- sum(pira.df$area_km)
+#pira.df$area_kmb <- area(pira)/1e+6
+
+piranga.df$area_km <- piranga.df$area2/1e+6
+piranga.df$area_tot <- sum(piranga.df$area_km)
+
+maria.df$area_km <- maria.df$area2/1e+6
+maria.df$area_tot <- sum(maria.df$area_km)
+
+antonio.df$area_km <- antonio.df$area2/1e+6
+antonio.df$area_tot <- sum(antonio.df$area_km)
+
+jose.df$area_km <- jose.df$area2/1e+6
+jose.df$area_tot <- sum(jose.df$area_km)
+
+suacui.df$area_km <- suacui.df$area2/1e+6
+suacui.df$area_tot <- sum(suacui.df$area_km)
 
 
 #summarise and make graphs ####
@@ -58,111 +76,152 @@ library(ggplot2)
 library(gridExtra)
 
 g0 <- filter(guandu.df,!(Uso == "Aeroporto")) #para tirar o aeroporto!
+area_tot_g <- sum(guandu.df$area_km)  #area total da UPH
 
 g1 <- g0 %>%
   group_by(Uso) %>%
-  summarise (sum = sum(area_km))
-
+  summarise (sum = sum(area_km))%>%
+  mutate(per=(sum/area_tot_g)*100)
 
 #to add levels that are missing in df (pq no total são 10 classes - tirando o aeroporto-, mas nem toda UPH tem todas as classes...)
 #text clean para poder arrange em ordem alfabetica. otherwise ele nao entende os caracteres especiais...
 
 g2 <- g1 %>%
-add_row(Uso = "Áreas Agrícolas", sum = 0)%>%
-add_row(Uso = "Áreas de Mineração", sum = 0)%>%
+add_row(Uso = "Áreas Agrícolas", sum = 0, per = 0)%>%
+add_row(Uso = "Áreas de Mineração", sum = 0, per = 0)%>%
   mutate(novo_uso= textclean::replace_non_ascii(Uso))%>%
-  arrange(novo_uso)
+  arrange(novo_uso)%>%
+add_row(Uso = "edificada", sum =sum((bind_rows((g2[7,]), (g2[9,]))$sum)), per=sum((bind_rows((g2[7,]), (g2[9,]))$per)), novo_uso = "Edificada")
+#o ultimo add_row é pra add uma linha juntando rodovias+areas_urbanas
 
 #para Caratinga
+area_tot_c <- sum(cara.df$area_km) #area total da UPH
+
 cara1 <- cara.df %>%
   group_by(Uso)%>%
-  summarise (sum = sum(area_km))
+  summarise (sum = sum(area_km))%>%
+  mutate(per=(sum/area_tot_c)*100)
 
 cara1 <-  cara1 %>%
   mutate(novo_uso= textclean::replace_non_ascii(Uso))%>%
-  arrange(novo_uso)
+  arrange(novo_uso)%>%
+add_row(Uso = "edificada", sum =sum((bind_rows((cara1[7,]), (cara1[9,]))$sum)), per=sum((bind_rows((cara1[7,]), (cara1[9,]))$per)), novo_uso = "Edificada")
 
 #para manhuacu
+area_tot_mh <- sum(manhu.df$area_km) #area total da UPH
+
 manhu1 <- manhu.df %>%
   group_by(Uso)%>%
-  summarise (sum = sum(area_km))
+  summarise (sum = sum(area_km))%>%
+  mutate(per=(sum/area_tot_mh)*100)
 
-manhu1 <- manhu1 %>%
-   add_row(Uso = "Áreas de Mineração", sum = 0)%>%
+manhu2 <- manhu1 %>%
+   add_row(Uso = "Áreas de Mineração", sum = 0, per=0)%>%
   mutate(novo_uso= textclean::replace_non_ascii(Uso))%>%
-  arrange(novo_uso)
+  arrange(novo_uso)%>%
+  add_row(Uso = "edificada", sum =sum((bind_rows((manhu1[6,]), (manhu1[8,]))$sum)), per=sum((bind_rows((manhu1[6,]), (manhu1[8,]))$per)), novo_uso = "Edificada")
 
 #para piracicaba
 pira0 <- filter(pira.df,!(Uso == "Aeroporto")) #para tirar o aeroporto!
+area_tot_pira <- sum(pira.df$area_km) #area total da UPH
+
 pira1 <- pira0 %>%
   group_by(Uso)%>%
-  summarise (sum = sum(area_km))
-pira1 <- pira1 %>%
-add_row(Uso = "Áreas Agrícolas", sum = 0)%>%
+  summarise (sum = sum(area_km))%>%
+  mutate(per=(sum/area_tot_pira)*100)
+
+
+pira2 <- pira1 %>%
+add_row(Uso = "Áreas Agrícolas", sum = 0, per=0)%>%
   mutate(novo_uso= textclean::replace_non_ascii(Uso))%>%
-  arrange(novo_uso)
+  arrange(novo_uso)%>%
+add_row(Uso = "edificada", sum =sum((bind_rows((pira2[7,]), (pira2[9,]))$sum)), per=sum((bind_rows((pira2[7,]), (pira2[9,]))$per)), novo_uso = "Edificada")
 
 #para Piranga
 piranga0 <- filter(piranga.df,!(Uso == "Aeroporto")) #para tirar o aeroporto!
+area_tot_p <- sum(piranga.df$area_km) #area total da UPH
 
 piranga1 <- piranga0 %>%
   group_by(Uso)%>%
-  summarise (sum = sum(area_km))
+  summarise (sum = sum(area_km))%>%
+  mutate(per=(sum/area_tot_p)*100)
 
-piranga1 <-  piranga1 %>%
+piranga2 <-  piranga1 %>%
   mutate(novo_uso= textclean::replace_non_ascii(Uso))%>%
-  arrange(novo_uso)
+  arrange(novo_uso)%>%
+add_row(Uso = "edificada", sum =sum((bind_rows((piranga1[7,]), (piranga1[9,]))$sum)), per=sum((bind_rows((piranga1[7,]), (piranga1[9,]))$per)), novo_uso = "Edificada")
 
 #para Sta Maria do Doce
+area_tot_m <- sum(maria.df$area_km) #area total da UPH
+
 maria1 <- maria.df %>%
   group_by(Uso)%>%
-  summarise (sum = sum(area_km))
+  summarise (sum = sum(area_km))%>%
+  mutate(per=(sum/area_tot_m)*100)
 
 maria1 <- maria1 %>%
-  add_row(Uso = "Rodovias", sum = 0)%>%
+  add_row(Uso = "Rodovias", sum = 0, per = 0)%>%
   mutate(novo_uso= textclean::replace_non_ascii(Uso))%>%
   arrange(novo_uso)
+
+maria2 <-maria1%>%
+  add_row(Uso = "edificada", sum =sum((bind_rows((maria1[7,]), (maria1[9,]))$sum)), per=sum((bind_rows((maria1[7,]), (maria1[9,]))$per)), novo_uso = "Edificada")
 
 #para Sto Antonio
+area_tot_a <- sum(antonio.df$area_km) #area total da UPH
+
 antonio1 <- antonio.df %>%
   group_by(Uso)%>%
-  summarise (sum = sum(area_km))
+  summarise (sum = sum(area_km))%>%
+  mutate(per=(sum/area_tot_a)*100)
 
-antonio1 <-  antonio1 %>%
+antonio2 <-  antonio1 %>%
   mutate(novo_uso= textclean::replace_non_ascii(Uso))%>%
-  arrange(novo_uso)
+  arrange(novo_uso)%>%
+  add_row(Uso = "edificada", sum =sum((bind_rows((antonio1[7,]), (antonio1[9,]))$sum)), per=sum((bind_rows((antonio1[7,]), (antonio1[9,]))$per)), novo_uso = "Edificada")
 
 #para São Jose
 jose0 <- filter(jose.df,!(Uso == "Aeroporto")) #para tirar o aeroporto!
+area_tot_j <- sum(jose.df$area_km) #area total da UPH
+
 jose1 <- jose0 %>%
   group_by(Uso)%>%
-  summarise (sum = sum(area_km))
+  summarise (sum = sum(area_km))%>%
+  mutate(per=(sum/area_tot_j)*100)
 
 jose1 <- jose1 %>%
-  add_row(Uso = "Rodovias", sum = 0)%>%
+  add_row(Uso = "Rodovias", sum = 0, per = 0)%>%
+  add_row(Uso = "Áreas Mineração", sum = 0, per = 0)%>%
   mutate(novo_uso= textclean::replace_non_ascii(Uso))%>%
   arrange(novo_uso)
+
+jose2<- jose1%>%
+  add_row(Uso = "edificada", sum =sum((bind_rows((jose1[7,]), (jose1[9,]))$sum)), per=sum((bind_rows((jose1[7,]), (jose1[9,]))$per)), novo_uso = "Edificada")
 
 #para Suasui Grande
 suacui0 <- filter(suacui.df,!(Uso == "Aeroporto")) #para tirar o aeroporto!
+area_tot_s <- sum(suacui.df$area_km) #area total da UPH
+
 suacui1 <- suacui0 %>%
   group_by(Uso)%>%
-  summarise (sum = sum(area_km))
+  summarise (sum = sum(area_km))%>%
+  mutate(per=(sum/area_tot_s)*100)
 
-suacui1 <-  suasui1 %>%
+suacui1 <-  suacui1 %>%
   mutate(novo_uso= textclean::replace_non_ascii(Uso))%>%
   arrange(novo_uso)
-
+suacui2 <- suacui1%>%
+  add_row(Uso = "edificada", sum =sum((bind_rows((suacui1[7,]), (suacui1[9,]))$sum)), per=sum((bind_rows((suacui1[7,]), (suacui1[9,]))$per)), novo_uso = "Edificada")
 
 #barplots ####
 
-f1 <- ggplot(data = g2, aes(x=novo_uso, y=sum, width=.5)) + # width faz a barra ficar mais fina (ou grossa)
+f1 <- ggplot(data = g2, aes(x=novo_uso, y=per, width=.5)) + # width faz a barra ficar mais fina (ou grossa)
   geom_bar(stat = "identity")+
   xlab("") +
   ylab("Área (km2)") +
-  scale_y_continuous(limits = c(0, 3000),breaks=0:3000*500) +
+  scale_y_continuous(limits = c(0, 100),breaks=0:100*20) +
   scale_x_discrete(breaks=c("Afloramento Rochoso", "Agua", "Areas Abertas (umidas + Secas)","Areas Agricolas", "Areas de Mineracao", "Areas de Reflorestamento", "Areas Urbanas", "Pastagem", "Rodovias", "Vegetacao Nativa"),
-                   labels=c("Afloramento rochoso", "Água", "Áreas abertas", "Áreas agrícolas", "Mineração", "Silvicultura", "Áreas Urbanas",  "Pastagem", "Rodovias", "Vegetação Nativa"))+
+                   labels=c("AR", "Água", "Abertas", "Agrícolas", "Mineração", "Silvicultura", "Áreas Urbanas",  "Pastagem", "Rodovias", "Vegetação Nativa"))+
     theme_classic() +
   theme (axis.text = element_text(size = 7), axis.title=element_text(size=8),
          axis.text.x=element_blank(),
