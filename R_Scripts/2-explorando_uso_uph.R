@@ -94,6 +94,8 @@ add_row(Uso = "Áreas de Mineração", sum = 0, per = 0)%>%
 add_row(Uso = "edificada", sum =sum((bind_rows((g2[7,]), (g2[9,]))$sum)), per=sum((bind_rows((g2[7,]), (g2[9,]))$per)), novo_uso = "Edificada")
 #o ultimo add_row é pra add uma linha juntando rodovias+areas_urbanas
 
+g2<-filter(g2,!(Uso == "Rodovias" | Uso =="Áreas Urbanas")) #ara tirar essas linhas - preciso fazer isso por conta dos gráficos
+
 #para Caratinga
 area_tot_c <- sum(cara.df$area_km) #area total da UPH
 
@@ -102,10 +104,12 @@ cara1 <- cara.df %>%
   summarise (sum = sum(area_km))%>%
   mutate(per=(sum/area_tot_c)*100)
 
-cara1 <-  cara1 %>%
+cara2 <-  cara1 %>%
   mutate(novo_uso= textclean::replace_non_ascii(Uso))%>%
   arrange(novo_uso)%>%
 add_row(Uso = "edificada", sum =sum((bind_rows((cara1[7,]), (cara1[9,]))$sum)), per=sum((bind_rows((cara1[7,]), (cara1[9,]))$per)), novo_uso = "Edificada")
+
+  cara2<- filter(cara2,!(Uso == "Rodovias" | Uso =="Áreas Urbanas"))
 
 #para manhuacu
 area_tot_mh <- sum(manhu.df$area_km) #area total da UPH
@@ -121,6 +125,8 @@ manhu2 <- manhu1 %>%
   arrange(novo_uso)%>%
   add_row(Uso = "edificada", sum =sum((bind_rows((manhu1[6,]), (manhu1[8,]))$sum)), per=sum((bind_rows((manhu1[6,]), (manhu1[8,]))$per)), novo_uso = "Edificada")
 
+manhu2<- filter(manhu2,!(Uso == "Rodovias" | Uso =="Áreas Urbanas"))
+
 #para piracicaba
 pira0 <- filter(pira.df,!(Uso == "Aeroporto")) #para tirar o aeroporto!
 area_tot_pira <- sum(pira.df$area_km) #area total da UPH
@@ -130,12 +136,13 @@ pira1 <- pira0 %>%
   summarise (sum = sum(area_km))%>%
   mutate(per=(sum/area_tot_pira)*100)
 
-
 pira2 <- pira1 %>%
 add_row(Uso = "Áreas Agrícolas", sum = 0, per=0)%>%
   mutate(novo_uso= textclean::replace_non_ascii(Uso))%>%
   arrange(novo_uso)%>%
 add_row(Uso = "edificada", sum =sum((bind_rows((pira2[7,]), (pira2[9,]))$sum)), per=sum((bind_rows((pira2[7,]), (pira2[9,]))$per)), novo_uso = "Edificada")
+
+pira2<- filter(pira2,!(Uso == "Rodovias" | Uso =="Áreas Urbanas"))
 
 #para Piranga
 piranga0 <- filter(piranga.df,!(Uso == "Aeroporto")) #para tirar o aeroporto!
@@ -150,6 +157,8 @@ piranga2 <-  piranga1 %>%
   mutate(novo_uso= textclean::replace_non_ascii(Uso))%>%
   arrange(novo_uso)%>%
 add_row(Uso = "edificada", sum =sum((bind_rows((piranga1[7,]), (piranga1[9,]))$sum)), per=sum((bind_rows((piranga1[7,]), (piranga1[9,]))$per)), novo_uso = "Edificada")
+
+piranga2<- filter(piranga2,!(Uso == "Rodovias" | Uso =="Áreas Urbanas"))
 
 #para Sta Maria do Doce
 area_tot_m <- sum(maria.df$area_km) #area total da UPH
@@ -167,10 +176,13 @@ maria1 <- maria1 %>%
 maria2 <-maria1%>%
   add_row(Uso = "edificada", sum =sum((bind_rows((maria1[7,]), (maria1[9,]))$sum)), per=sum((bind_rows((maria1[7,]), (maria1[9,]))$per)), novo_uso = "Edificada")
 
+maria2<- filter(maria2,!(Uso == "Rodovias" | Uso =="Áreas Urbanas"))
+
 #para Sto Antonio
+antonio0 <- filter(antonio.df,!(Uso == "Aeroporto")) #para tirar o aeroporto!
 area_tot_a <- sum(antonio.df$area_km) #area total da UPH
 
-antonio1 <- antonio.df %>%
+antonio1 <- antonio0 %>%
   group_by(Uso)%>%
   summarise (sum = sum(area_km))%>%
   mutate(per=(sum/area_tot_a)*100)
@@ -178,7 +190,9 @@ antonio1 <- antonio.df %>%
 antonio2 <-  antonio1 %>%
   mutate(novo_uso= textclean::replace_non_ascii(Uso))%>%
   arrange(novo_uso)%>%
-  add_row(Uso = "edificada", sum =sum((bind_rows((antonio1[7,]), (antonio1[9,]))$sum)), per=sum((bind_rows((antonio1[7,]), (antonio1[9,]))$per)), novo_uso = "Edificada")
+  add_row(Uso = "edificada", sum =sum((bind_rows((antonio1[6,]), (antonio1[8,]))$sum)), per=sum((bind_rows((antonio1[6,]), (antonio1[8,]))$per)), novo_uso = "Edificada")
+
+antonio2<- filter(antonio2,!(Uso == "Rodovias" | Uso =="Áreas Urbanas"))
 
 #para São Jose
 jose0 <- filter(jose.df,!(Uso == "Aeroporto")) #para tirar o aeroporto!
@@ -191,12 +205,14 @@ jose1 <- jose0 %>%
 
 jose1 <- jose1 %>%
   add_row(Uso = "Rodovias", sum = 0, per = 0)%>%
-  add_row(Uso = "Áreas Mineração", sum = 0, per = 0)%>%
+  add_row(Uso = "Áreas de Mineração", sum = 0, per = 0)%>%
   mutate(novo_uso= textclean::replace_non_ascii(Uso))%>%
   arrange(novo_uso)
 
 jose2<- jose1%>%
   add_row(Uso = "edificada", sum =sum((bind_rows((jose1[7,]), (jose1[9,]))$sum)), per=sum((bind_rows((jose1[7,]), (jose1[9,]))$per)), novo_uso = "Edificada")
+
+jose2<- filter(jose2,!(Uso == "Rodovias" | Uso =="Áreas Urbanas"))
 
 #para Suasui Grande
 suacui0 <- filter(suacui.df,!(Uso == "Aeroporto")) #para tirar o aeroporto!
@@ -213,15 +229,17 @@ suacui1 <-  suacui1 %>%
 suacui2 <- suacui1%>%
   add_row(Uso = "edificada", sum =sum((bind_rows((suacui1[7,]), (suacui1[9,]))$sum)), per=sum((bind_rows((suacui1[7,]), (suacui1[9,]))$per)), novo_uso = "Edificada")
 
+suacui2<- filter(suacui2,!(Uso == "Rodovias" | Uso =="Áreas Urbanas"))
+
 #barplots ####
 
 f1 <- ggplot(data = g2, aes(x=novo_uso, y=per, width=.5)) + # width faz a barra ficar mais fina (ou grossa)
   geom_bar(stat = "identity")+
   xlab("") +
-  ylab("Área (km2)") +
+  ylab("Área ocupada (%)") +
   scale_y_continuous(limits = c(0, 100),breaks=0:100*20) +
-  scale_x_discrete(breaks=c("Afloramento Rochoso", "Agua", "Areas Abertas (umidas + Secas)","Areas Agricolas", "Areas de Mineracao", "Areas de Reflorestamento", "Areas Urbanas", "Pastagem", "Rodovias", "Vegetacao Nativa"),
-                   labels=c("AR", "Água", "Abertas", "Agrícolas", "Mineração", "Silvicultura", "Áreas Urbanas",  "Pastagem", "Rodovias", "Vegetação Nativa"))+
+  scale_x_discrete(breaks=c("Afloramento Rochoso", "Agua", "Areas Abertas (umidas + Secas)","Areas Agricolas", "Areas de Mineracao", "Areas de Reflorestamento",  "Pastagem", "Vegetacao Nativa", "Edificada"),
+                   labels=c("AR", "Água", "Ab", "Agri", "Min", "Silvi", "Past", "Veg Nat", "Ed"))+
     theme_classic() +
   theme (axis.text = element_text(size = 7), axis.title=element_text(size=8),
          axis.text.x=element_blank(),
@@ -233,16 +251,16 @@ f1 <- ggplot(data = g2, aes(x=novo_uso, y=per, width=.5)) + # width faz a barra 
   theme(plot.title = element_text(size=10))+
   theme(legend.position="none")
 
-f2 <- ggplot(data = cara1, aes(x=novo_uso, y=sum, width=.5)) + # width faz a barra ficar mais fina (ou grossa)
+f2 <- ggplot(data = cara2, aes(x=novo_uso, y=per, width=.5)) + # width faz a barra ficar mais fina (ou grossa)
   geom_bar(stat = "identity")+
   xlab("") +
-  ylab("Área (km2)") +
-  scale_y_continuous(limits = c(0, 6000),breaks=0:6000*1000) +
-  scale_x_discrete(breaks=c("Afloramento Rochoso", "Agua", "Areas Abertas (umidas + Secas)","Areas Agricolas", "Areas de Mineracao", "Areas de Reflorestamento", "Areas Urbanas", "Pastagem", "Rodovias", "Vegetacao Nativa"),
-                   labels=c("Afloramento rochoso", "Água", "Áreas abertas", "Áreas agrícolas", "Mineração", "Silvicultura", "Áreas Urbanas", "Pastagem", "Rodovias", "Vegetação Nativa"))+
+  ylab("") +
+  scale_y_continuous(limits = c(0, 100),breaks=0:100*20) +
+  scale_x_discrete(breaks=c("Afloramento Rochoso", "Agua", "Areas Abertas (umidas + Secas)","Areas Agricolas", "Areas de Mineracao", "Areas de Reflorestamento",  "Pastagem", "Vegetacao Nativa", "Edificada"),
+                   labels=c("AR", "Água", "Ab", "Agri", "Min", "Silvi", "Past", "Veg Nat", "Ed"))+
     theme_classic() +
   theme (axis.text = element_text(size = 7), axis.title=element_text(size=8),
-         axis.text.x=element_text(size = 8, angle = 90),
+         axis.text.x=element_blank(),axis.text.y=element_blank(),
          panel.grid.major=element_blank(),
          panel.grid.minor=element_blank(), panel.border=element_blank()) +
   theme(axis.line.x = element_line(color="black", size = 0), ## to write x and y axis again, ja que removi da borda
@@ -251,16 +269,16 @@ f2 <- ggplot(data = cara1, aes(x=novo_uso, y=sum, width=.5)) + # width faz a bar
   theme(plot.title = element_text(size=10))+
   theme(legend.position="none")
 
-f3 <- ggplot(data = manhu1, aes(x=novo_uso, y=sum, width=.5)) + # width faz a barra ficar mais fina (ou grossa)
+f3 <- ggplot(data = manhu2, aes(x=novo_uso, y=per, width=.5)) + # width faz a barra ficar mais fina (ou grossa)
   geom_bar(stat = "identity")+
   xlab("") +
-  ylab("Área (km2)") +
-  scale_y_continuous(limits = c(0, 6000),breaks=0:6000*1000) +
-  scale_x_discrete(breaks=c("Afloramento Rochoso", "Agua", "Areas Abertas (umidas + Secas)","Areas Agricolas", "Areas de Mineracao", "Areas de Reflorestamento", "Areas Urbanas", "Pastagem", "Rodovias", "Vegetacao Nativa"),
-                   labels=c("Afloramento rochoso", "Água", "Áreas abertas", "Áreas agrícolas", "Mineração", "Silvicultura", "Áreas Urbanas",  "Pastagem", "Rodovias", "Vegetação Nativa"))+
+  ylab("") +
+  scale_y_continuous(limits = c(0, 100),breaks=0:100*20) +
+  scale_x_discrete(breaks=c("Afloramento Rochoso", "Agua", "Areas Abertas (umidas + Secas)","Areas Agricolas", "Areas de Mineracao", "Areas de Reflorestamento",  "Pastagem", "Vegetacao Nativa", "Edificada"),
+                   labels=c("AR", "Água", "Ab", "Agri", "Min", "Silvi", "Past", "Veg Nat", "Ed"))+
   theme_classic() +
   theme (axis.text = element_text(size = 7), axis.title=element_text(size=8),
-         axis.text.x=element_text(size = 8, angle = 90),
+         axis.text.x=element_blank(),axis.text.y=element_blank(),
          panel.grid.major=element_blank(),
          panel.grid.minor=element_blank(), panel.border=element_blank()) +
   theme(axis.line.x = element_line(color="black", size = 0), ## to write x and y axis again, ja que removi da borda
@@ -269,16 +287,16 @@ f3 <- ggplot(data = manhu1, aes(x=novo_uso, y=sum, width=.5)) + # width faz a ba
   theme(plot.title = element_text(size=10))+
   theme(legend.position="none")
 
-f4 <- ggplot(data = pira1, aes(x=novo_uso, y=sum, width=.5)) + # width faz a barra ficar mais fina (ou grossa)
+f4 <- ggplot(data = pira2, aes(x=novo_uso, y=per, width=.5)) + # width faz a barra ficar mais fina (ou grossa)
   geom_bar(stat = "identity")+
   xlab("") +
-  ylab("Área (km2)") +
-  scale_y_continuous(limits = c(0, 3000),breaks=0:3000*500) +
-  scale_x_discrete(breaks=c("Afloramento Rochoso", "Agua", "Areas Abertas (umidas + Secas)","Areas Agricolas", "Areas de Mineracao", "Areas de Reflorestamento", "Areas Urbanas", "Pastagem", "Rodovias", "Vegetacao Nativa"),
-                   labels=c("Afloramento rochoso", "Água", "Áreas abertas", "Áreas agrícolas", "Mineração", "Silvicultura", "Áreas Urbanas",  "Pastagem", "Rodovias", "Vegetação Nativa"))+
+  ylab("Área ocupada (%)") +
+  scale_y_continuous(limits = c(0, 100),breaks=0:100*20) +
+  scale_x_discrete(breaks=c("Afloramento Rochoso", "Agua", "Areas Abertas (umidas + Secas)","Areas Agricolas", "Areas de Mineracao", "Areas de Reflorestamento",  "Pastagem", "Vegetacao Nativa", "Edificada"),
+                   labels=c("AR", "Água", "Ab", "Agri", "Min", "Silvi", "Past", "Veg Nat", "Ed"))+
   theme_classic() +
   theme (axis.text = element_text(size = 7), axis.title=element_text(size=8),
-         axis.text.x=element_text(size = 7, angle = 90),
+         axis.text.x=element_blank(),
          panel.grid.major=element_blank(),
          panel.grid.minor=element_blank(), panel.border=element_blank()) +
   theme(axis.line.x = element_line(color="black", size = 0), ## to write x and y axis again, ja que removi da borda
@@ -287,16 +305,16 @@ f4 <- ggplot(data = pira1, aes(x=novo_uso, y=sum, width=.5)) + # width faz a bar
   theme(plot.title = element_text(size=10))+
   theme(legend.position="none")
 
-f5 <- ggplot(data = piranga1, aes(x=novo_uso, y=sum, width=.5)) + # width faz a barra ficar mais fina (ou grossa)
+f5 <- ggplot(data = piranga2, aes(x=novo_uso, y=per, width=.5)) + # width faz a barra ficar mais fina (ou grossa)
   geom_bar(stat = "identity")+
   xlab("") +
-  ylab("Área (km2)") +
-  scale_y_continuous(limits = c(0, 16000),breaks=0:11000*2500) +
-  scale_x_discrete(breaks=c("Afloramento Rochoso", "Agua", "Areas Abertas (umidas + Secas)","Areas Agricolas", "Areas de Mineracao", "Areas de Reflorestamento", "Areas Urbanas", "Pastagem", "Rodovias", "Vegetacao Nativa"),
-                   labels=c("Afloramento rochoso", "Água", "Áreas abertas", "Áreas agrícolas", "Mineração", "Silvicultura", "Áreas Urbanas",  "Pastagem", "Rodovias", "Vegetação Nativa"))+
+  ylab("") +
+  scale_y_continuous(limits = c(0, 100),breaks=0:100*20) +
+  scale_x_discrete(breaks=c("Afloramento Rochoso", "Agua", "Areas Abertas (umidas + Secas)","Areas Agricolas", "Areas de Mineracao", "Areas de Reflorestamento",  "Pastagem", "Vegetacao Nativa", "Edificada"),
+                   labels=c("AR", "Água", "Ab", "Agri", "Min", "Silvi", "Past", "Veg Nat", "Ed"))+
   theme_classic() +
   theme (axis.text = element_text(size = 7), axis.title=element_text(size=8),
-         axis.text.x=element_text(size = 7, angle = 90),
+         axis.text.x=element_blank(),axis.text.y=element_blank(),
          panel.grid.major=element_blank(),
          panel.grid.minor=element_blank(), panel.border=element_blank()) +
   theme(axis.line.x = element_line(color="black", size = 0), ## to write x and y axis again, ja que removi da borda
@@ -305,16 +323,16 @@ f5 <- ggplot(data = piranga1, aes(x=novo_uso, y=sum, width=.5)) + # width faz a 
   theme(plot.title = element_text(size=10))+
   theme(legend.position="none")
 
-f6 <- ggplot(data = maria1, aes(x=novo_uso, y=sum, width=.5)) + # width faz a barra ficar mais fina (ou grossa)
+f6 <- ggplot(data = maria2, aes(x=novo_uso, y=per, width=.5)) + # width faz a barra ficar mais fina (ou grossa)
   geom_bar(stat = "identity")+
   xlab("") +
   ylab("") +
-  scale_y_continuous(limits = c(0, 3000),breaks=0:3000*500) +
-  scale_x_discrete(breaks=c("Afloramento Rochoso", "Agua", "Areas Abertas (umidas + Secas)","Areas Agricolas", "Areas de Mineracao", "Areas de Reflorestamento", "Areas Urbanas", "Pastagem", "Rodovias", "Vegetacao Nativa"),
-                   labels=c("Afloramento rochoso", "Água", "Áreas abertas", "Áreas agrícolas", "Mineração", "Silvicultura", "Áreas Urbanas",  "Pastagem", "Rodovias", "Vegetação Nativa"))+
+  scale_y_continuous(limits = c(0, 100),breaks=0:100*20) +
+  scale_x_discrete(breaks=c("Afloramento Rochoso", "Agua", "Areas Abertas (umidas + Secas)","Areas Agricolas", "Areas de Mineracao", "Areas de Reflorestamento",  "Pastagem", "Vegetacao Nativa", "Edificada"),
+                   labels=c("AR", "Água", "Ab", "Agri", "Min", "Silvi", "Past", "Veg Nat", "Ed"))+
   theme_classic() +
   theme (axis.text = element_text(size = 7), axis.title=element_text(size=8),
-         axis.text.x=element_text(size = 7, angle = 90), axis.text.y=element_blank(),
+         axis.text.x=element_blank(), axis.text.y=element_blank(),
          panel.grid.major=element_blank(),
          panel.grid.minor=element_blank(), panel.border=element_blank()) +
   theme(axis.line.x = element_line(color="black", size = 0), ## to write x and y axis again, ja que removi da borda
@@ -323,13 +341,13 @@ f6 <- ggplot(data = maria1, aes(x=novo_uso, y=sum, width=.5)) + # width faz a ba
   theme(plot.title = element_text(size=10))+
   theme(legend.position="none")
 
-f7 <- ggplot(data = antonio1, aes(x=novo_uso, y=sum, width=.5)) + # width faz a barra ficar mais fina (ou grossa)
+f7 <- ggplot(data = antonio2, aes(x=novo_uso, y=per, width=.5)) + # width faz a barra ficar mais fina (ou grossa)
   geom_bar(stat = "identity")+
   xlab("") +
-  ylab("Área (km2)") +
-  scale_y_continuous(limits = c(0, 6000),breaks=0:6000*1000) +
-  scale_x_discrete(breaks=c("Afloramento Rochoso", "Agua", "Areas Abertas (umidas + Secas)","Areas Agricolas", "Areas de Mineracao", "Areas de Reflorestamento", "Areas Urbanas", "Pastagem", "Rodovias", "Vegetacao Nativa"),
-                   labels=c("Afloramento rochoso", "Água", "Áreas abertas", "Áreas agrícolas", "Mineração", "Silvicultura", "Áreas Urbanas",  "Pastagem", "Rodovias", "Vegetação Nativa"))+
+  ylab("Área ocupada (%)") +
+  scale_y_continuous(limits = c(0, 100),breaks=0:100*20) +
+  scale_x_discrete(breaks=c("Afloramento Rochoso", "Agua", "Areas Abertas (umidas + Secas)","Areas Agricolas", "Areas de Mineracao", "Areas de Reflorestamento",  "Pastagem", "Vegetacao Nativa", "Edificada"),
+                   labels=c("AR", "Água", "Ab", "Agri", "Min", "Silvi", "Past", "Veg Nat", "Ed"))+
   theme_classic() +
   theme (axis.text = element_text(size = 7), axis.title=element_text(size=8),
          axis.text.x=element_text(size = 8, angle = 90),
@@ -342,16 +360,16 @@ f7 <- ggplot(data = antonio1, aes(x=novo_uso, y=sum, width=.5)) + # width faz a 
   theme(legend.position="none")
 
 
-f8 <- ggplot(data = jose1, aes(x=novo_uso, y=sum, width=.5)) + # width faz a barra ficar mais fina (ou grossa)
+f8 <- ggplot(data = jose2, aes(x=novo_uso, y=per, width=.5)) + # width faz a barra ficar mais fina (ou grossa)
   geom_bar(stat = "identity")+
   xlab("") +
-  ylab("Área (km2)") +
-  scale_y_continuous(limits = c(0, 6000),breaks=0:6000*1000) +
-  scale_x_discrete(breaks=c("Afloramento Rochoso", "Agua", "Areas Abertas (umidas + Secas)","Areas Agricolas", "Areas de Mineracao", "Areas de Reflorestamento", "Areas Urbanas", "Pastagem", "Rodovias", "Vegetacao Nativa"),
-                   labels=c("Afloramento rochoso", "Água", "Áreas abertas", "Áreas agrícolas", "Mineração", "Silvicultura", "Áreas Urbanas",  "Pastagem", "Rodovias", "Vegetação Nativa"))+
+  ylab("") +
+  scale_y_continuous(limits = c(0, 100),breaks=0:100*20) +
+  scale_x_discrete(breaks=c("Afloramento Rochoso", "Agua", "Areas Abertas (umidas + Secas)","Areas Agricolas", "Areas de Mineracao", "Areas de Reflorestamento","Pastagem", "Vegetacao Nativa", "Edificada"),
+                   labels=c("AR", "Água", "Ab", "Agri", "Min", "Silvi", "Past", "Veg Nat", "Ed"))+
   theme_classic() +
   theme (axis.text = element_text(size = 7), axis.title=element_text(size=8),
-         axis.text.x=element_text(size = 8, angle = 90),
+         axis.text.x=element_text(size = 8, angle = 90),axis.text.y=element_blank(),
          panel.grid.major=element_blank(),
          panel.grid.minor=element_blank(), panel.border=element_blank()) +
   theme(axis.line.x = element_line(color="black", size = 0), ## to write x and y axis again, ja que removi da borda
@@ -361,13 +379,13 @@ f8 <- ggplot(data = jose1, aes(x=novo_uso, y=sum, width=.5)) + # width faz a bar
     theme(legend.position="none")
 
 
-f9 <- ggplot(data = suacui1, aes(x=novo_uso, y=sum, width=.5)) + # width faz a barra ficar mais fina (ou grossa)
+f9 <- ggplot(data = suacui2, aes(x=novo_uso, y=per, width=.5)) + # width faz a barra ficar mais fina (ou grossa)
   geom_bar(stat = "identity")+
   xlab("") +
   ylab("") +
-  scale_y_continuous(limits = c(0, 16000),breaks=0:16000*2500) +
-  scale_x_discrete(breaks=c("Afloramento Rochoso", "Agua", "Areas Abertas (umidas + Secas)","Areas Agricolas", "Areas de Mineracao", "Areas de Reflorestamento", "Areas Urbanas", "Pastagem", "Rodovias", "Vegetacao Nativa"),
-                   labels=c("Afloramento rochoso", "Água", "Áreas abertas", "Áreas agrícolas", "Mineração", "Silvicultura", "Áreas Urbanas",  "Pastagem", "Rodovias", "Vegetação Nativa"))+
+  scale_y_continuous(limits = c(0, 100),breaks=0:100*20) +
+  scale_x_discrete(breaks=c("Afloramento Rochoso", "Agua", "Areas Abertas (umidas + Secas)","Areas Agricolas", "Areas de Mineracao", "Areas de Reflorestamento",  "Pastagem", "Vegetacao Nativa", "Edificada"),
+                   labels=c("AR", "Água", "Ab", "Agri", "Min", "Silvi", "Past", "Veg Nat", "Ed"))+
   theme_classic() +
   theme (axis.text = element_text(size = 7), axis.title=element_text(size=8),
          axis.text.x=element_text(size = 7, angle = 90), axis.text.y = element_blank(),
@@ -380,8 +398,8 @@ f9 <- ggplot(data = suacui1, aes(x=novo_uso, y=sum, width=.5)) + # width faz a b
   theme(legend.position="none")
 
 #salvando figuras (com dados brutos e nao %)
-png("Figs/figura01.png", res = 300, width = 1400, height = 800)
-grid.arrange(f5, f9, ncol =2)
+png("Figs/figura01.png", res = 300, width = 2000, height = 1800)
+grid.arrange(f1, f2, f3, f4, f5, f6, f7, f8, f9, ncol =3)
 dev.off()
 
 png("Figs/figura02.png", res = 300, width = 1400, height = 800)
