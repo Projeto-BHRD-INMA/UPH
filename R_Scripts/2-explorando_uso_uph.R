@@ -86,12 +86,14 @@ g1 <- g0 %>%
 #to add levels that are missing in df (pq no total são 10 classes - tirando o aeroporto-, mas nem toda UPH tem todas as classes...)
 #text clean para poder arrange em ordem alfabetica. otherwise ele nao entende os caracteres especiais...
 
-g2 <- g1 %>%
+g1 <- g1 %>%
 add_row(Uso = "Áreas Agrícolas", sum = 0, per = 0)%>%
 add_row(Uso = "Áreas de Mineração", sum = 0, per = 0)%>%
   mutate(novo_uso= textclean::replace_non_ascii(Uso))%>%
-  arrange(novo_uso)%>%
-add_row(Uso = "edificada", sum =sum((bind_rows((g2[7,]), (g2[9,]))$sum)), per=sum((bind_rows((g2[7,]), (g2[9,]))$per)), novo_uso = "Edificada")
+  arrange(novo_uso)
+
+g2<-g1%>%
+add_row(Uso = "edificada", sum =sum((bind_rows((g1[7,]), (g1[9,]))$sum)), per=sum((bind_rows((g1[7,]), (g1[9,]))$per)), novo_uso = "Edificada")
 #o ultimo add_row é pra add uma linha juntando rodovias+areas_urbanas
 
 g2<-filter(g2,!(Uso == "Rodovias" | Uso =="Áreas Urbanas")) #ara tirar essas linhas - preciso fazer isso por conta dos gráficos
@@ -140,7 +142,7 @@ pira2 <- pira1 %>%
 add_row(Uso = "Áreas Agrícolas", sum = 0, per=0)%>%
   mutate(novo_uso= textclean::replace_non_ascii(Uso))%>%
   arrange(novo_uso)%>%
-add_row(Uso = "edificada", sum =sum((bind_rows((pira2[7,]), (pira2[9,]))$sum)), per=sum((bind_rows((pira2[7,]), (pira2[9,]))$per)), novo_uso = "Edificada")
+add_row(Uso = "edificada", sum =sum((bind_rows((pira1[6,]), (pira1[8,]))$sum)), per=sum((bind_rows((pira1[6,]), (pira1[8,]))$per)), novo_uso = "Edificada")
 
 pira2<- filter(pira2,!(Uso == "Rodovias" | Uso =="Áreas Urbanas"))
 
@@ -187,10 +189,15 @@ antonio1 <- antonio0 %>%
   summarise (sum = sum(area_km))%>%
   mutate(per=(sum/area_tot_a)*100)
 
+antonio1 <- antonio1 %>%
+  add_row(Uso = "Áreas Agrícolas", sum = 0, per = 0)%>%
+  mutate(novo_uso= textclean::replace_non_ascii(Uso))%>%
+  arrange(novo_uso)
+
 antonio2 <-  antonio1 %>%
   mutate(novo_uso= textclean::replace_non_ascii(Uso))%>%
   arrange(novo_uso)%>%
-  add_row(Uso = "edificada", sum =sum((bind_rows((antonio1[6,]), (antonio1[8,]))$sum)), per=sum((bind_rows((antonio1[6,]), (antonio1[8,]))$per)), novo_uso = "Edificada")
+  add_row(Uso = "edificada", sum =sum((bind_rows((antonio1[7,]), (antonio1[9,]))$sum)), per=sum((bind_rows((antonio1[7,]), (antonio1[9,]))$per)), novo_uso = "Edificada")
 
 antonio2<- filter(antonio2,!(Uso == "Rodovias" | Uso =="Áreas Urbanas"))
 
@@ -239,7 +246,7 @@ f1 <- ggplot(data = g2, aes(x=novo_uso, y=per, width=.5)) + # width faz a barra 
   ylab("Área ocupada (%)") +
   scale_y_continuous(limits = c(0, 100),breaks=0:100*20) +
   scale_x_discrete(breaks=c("Afloramento Rochoso", "Agua", "Areas Abertas (umidas + Secas)","Areas Agricolas", "Areas de Mineracao", "Areas de Reflorestamento",  "Pastagem", "Vegetacao Nativa", "Edificada"),
-                   labels=c("AR", "Água", "Ab", "Agri", "Min", "Silvi", "Past", "Veg Nat", "Ed"))+
+                   labels=c("A_Rochosas", "Água", "A_Abertas", "Agricultura", "Mineração", "Reflorestada", "Pastagem", "Veg Nat", "Edificada"))+
     theme_classic() +
   theme (axis.text = element_text(size = 7), axis.title=element_text(size=8),
          axis.text.x=element_blank(),
@@ -257,7 +264,7 @@ f2 <- ggplot(data = cara2, aes(x=novo_uso, y=per, width=.5)) + # width faz a bar
   ylab("") +
   scale_y_continuous(limits = c(0, 100),breaks=0:100*20) +
   scale_x_discrete(breaks=c("Afloramento Rochoso", "Agua", "Areas Abertas (umidas + Secas)","Areas Agricolas", "Areas de Mineracao", "Areas de Reflorestamento",  "Pastagem", "Vegetacao Nativa", "Edificada"),
-                   labels=c("AR", "Água", "Ab", "Agri", "Min", "Silvi", "Past", "Veg Nat", "Ed"))+
+                   labels=c("A_Rochosas", "Água", "A_Abertas", "Agricultura", "Mineração", "Reflorestada", "Pastagem", "Veg Nat", "Edificada"))+
     theme_classic() +
   theme (axis.text = element_text(size = 7), axis.title=element_text(size=8),
          axis.text.x=element_blank(),axis.text.y=element_blank(),
@@ -275,7 +282,7 @@ f3 <- ggplot(data = manhu2, aes(x=novo_uso, y=per, width=.5)) + # width faz a ba
   ylab("") +
   scale_y_continuous(limits = c(0, 100),breaks=0:100*20) +
   scale_x_discrete(breaks=c("Afloramento Rochoso", "Agua", "Areas Abertas (umidas + Secas)","Areas Agricolas", "Areas de Mineracao", "Areas de Reflorestamento",  "Pastagem", "Vegetacao Nativa", "Edificada"),
-                   labels=c("AR", "Água", "Ab", "Agri", "Min", "Silvi", "Past", "Veg Nat", "Ed"))+
+                   labels=c("A_Rochosas", "Água", "A_Abertas", "Agricultura", "Mineração", "Reflorestada", "Pastagem", "Veg Nat", "Edificada"))+
   theme_classic() +
   theme (axis.text = element_text(size = 7), axis.title=element_text(size=8),
          axis.text.x=element_blank(),axis.text.y=element_blank(),
@@ -293,7 +300,7 @@ f4 <- ggplot(data = pira2, aes(x=novo_uso, y=per, width=.5)) + # width faz a bar
   ylab("Área ocupada (%)") +
   scale_y_continuous(limits = c(0, 100),breaks=0:100*20) +
   scale_x_discrete(breaks=c("Afloramento Rochoso", "Agua", "Areas Abertas (umidas + Secas)","Areas Agricolas", "Areas de Mineracao", "Areas de Reflorestamento",  "Pastagem", "Vegetacao Nativa", "Edificada"),
-                   labels=c("AR", "Água", "Ab", "Agri", "Min", "Silvi", "Past", "Veg Nat", "Ed"))+
+                   labels=c("A_Rochosas", "Água", "A_Abertas", "Agricultura", "Mineração", "Reflorestada", "Pastagem", "Veg Nat", "Edificada"))+
   theme_classic() +
   theme (axis.text = element_text(size = 7), axis.title=element_text(size=8),
          axis.text.x=element_blank(),
@@ -311,7 +318,7 @@ f5 <- ggplot(data = piranga2, aes(x=novo_uso, y=per, width=.5)) + # width faz a 
   ylab("") +
   scale_y_continuous(limits = c(0, 100),breaks=0:100*20) +
   scale_x_discrete(breaks=c("Afloramento Rochoso", "Agua", "Areas Abertas (umidas + Secas)","Areas Agricolas", "Areas de Mineracao", "Areas de Reflorestamento",  "Pastagem", "Vegetacao Nativa", "Edificada"),
-                   labels=c("AR", "Água", "Ab", "Agri", "Min", "Silvi", "Past", "Veg Nat", "Ed"))+
+                   labels=c("A_Rochosas", "Água", "A_Abertas", "Agricultura", "Mineração", "Reflorestada", "Pastagem", "Veg Nat", "Edificada"))+
   theme_classic() +
   theme (axis.text = element_text(size = 7), axis.title=element_text(size=8),
          axis.text.x=element_blank(),axis.text.y=element_blank(),
@@ -329,7 +336,7 @@ f6 <- ggplot(data = maria2, aes(x=novo_uso, y=per, width=.5)) + # width faz a ba
   ylab("") +
   scale_y_continuous(limits = c(0, 100),breaks=0:100*20) +
   scale_x_discrete(breaks=c("Afloramento Rochoso", "Agua", "Areas Abertas (umidas + Secas)","Areas Agricolas", "Areas de Mineracao", "Areas de Reflorestamento",  "Pastagem", "Vegetacao Nativa", "Edificada"),
-                   labels=c("AR", "Água", "Ab", "Agri", "Min", "Silvi", "Past", "Veg Nat", "Ed"))+
+                   labels=c("A_Rochosas", "Água", "A_Abertas", "Agricultura", "Mineração", "Reflorestada", "Pastagem", "Veg Nat", "Edificada"))+
   theme_classic() +
   theme (axis.text = element_text(size = 7), axis.title=element_text(size=8),
          axis.text.x=element_blank(), axis.text.y=element_blank(),
@@ -347,7 +354,7 @@ f7 <- ggplot(data = antonio2, aes(x=novo_uso, y=per, width=.5)) + # width faz a 
   ylab("Área ocupada (%)") +
   scale_y_continuous(limits = c(0, 100),breaks=0:100*20) +
   scale_x_discrete(breaks=c("Afloramento Rochoso", "Agua", "Areas Abertas (umidas + Secas)","Areas Agricolas", "Areas de Mineracao", "Areas de Reflorestamento",  "Pastagem", "Vegetacao Nativa", "Edificada"),
-                   labels=c("AR", "Água", "Ab", "Agri", "Min", "Silvi", "Past", "Veg Nat", "Ed"))+
+                   labels=c("A_Rochosas", "Água", "A_Abertas", "Agricultura", "Mineração", "Reflorestada", "Pastagem", "Veg Nat", "Edificada"))+
   theme_classic() +
   theme (axis.text = element_text(size = 7), axis.title=element_text(size=8),
          axis.text.x=element_text(size = 8, angle = 90),
@@ -366,7 +373,7 @@ f8 <- ggplot(data = jose2, aes(x=novo_uso, y=per, width=.5)) + # width faz a bar
   ylab("") +
   scale_y_continuous(limits = c(0, 100),breaks=0:100*20) +
   scale_x_discrete(breaks=c("Afloramento Rochoso", "Agua", "Areas Abertas (umidas + Secas)","Areas Agricolas", "Areas de Mineracao", "Areas de Reflorestamento","Pastagem", "Vegetacao Nativa", "Edificada"),
-                   labels=c("AR", "Água", "Ab", "Agri", "Min", "Silvi", "Past", "Veg Nat", "Ed"))+
+                   labels=c("A_Rochosas", "Água", "A_Abertas", "Agricultura", "Mineração", "Reflorestada", "Pastagem", "Veg Nat", "Edificada"))+
   theme_classic() +
   theme (axis.text = element_text(size = 7), axis.title=element_text(size=8),
          axis.text.x=element_text(size = 8, angle = 90),axis.text.y=element_blank(),
@@ -385,7 +392,7 @@ f9 <- ggplot(data = suacui2, aes(x=novo_uso, y=per, width=.5)) + # width faz a b
   ylab("") +
   scale_y_continuous(limits = c(0, 100),breaks=0:100*20) +
   scale_x_discrete(breaks=c("Afloramento Rochoso", "Agua", "Areas Abertas (umidas + Secas)","Areas Agricolas", "Areas de Mineracao", "Areas de Reflorestamento",  "Pastagem", "Vegetacao Nativa", "Edificada"),
-                   labels=c("AR", "Água", "Ab", "Agri", "Min", "Silvi", "Past", "Veg Nat", "Ed"))+
+                   labels=c("A_Rochosas", "Água", "A_Abertas", "Agricultura", "Mineração", "Reflorestada", "Pastagem", "Veg Nat", "Edificada"))+
   theme_classic() +
   theme (axis.text = element_text(size = 7), axis.title=element_text(size=8),
          axis.text.x=element_text(size = 7, angle = 90), axis.text.y = element_blank(),
@@ -398,10 +405,10 @@ f9 <- ggplot(data = suacui2, aes(x=novo_uso, y=per, width=.5)) + # width faz a b
   theme(legend.position="none")
 
 #salvando figuras (com dados brutos e nao %)
-png("Figs/figura01.png", res = 300, width = 2000, height = 1800)
+png("Figs/figura01b.png", res = 300, width = 2000, height = 1800)
 grid.arrange(f1, f2, f3, f4, f5, f6, f7, f8, f9, ncol =3)
 dev.off()
 
-png("Figs/figura02.png", res = 300, width = 1400, height = 800)
-grid.arrange( f4, f6, ncol =2)
-dev.off()
+#png("Figs/figura02.png", res = 300, width = 1400, height = 800)
+#grid.arrange( f4, f6, ncol =2)
+#dev.off()
