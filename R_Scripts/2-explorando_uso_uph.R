@@ -39,7 +39,7 @@ suacui <- readOGR(dsn = "./Data/USO_ANA", layer = "uph_suasui_grande_uso2", enco
 suacui.df<- as.data.frame(suacui)
 
 
-#area em km2 (a area original é dada em m2) e inserir area total da UPH numa coluna
+#area em km2 (a area original (area2) é dada em m2) e inserir area total da UPH numa coluna
 
 guandu.df$area_km <-guandu.df$area2/1e+6 #em km2
 guandu.df$area_tot <- sum(guandu.df$area_km)
@@ -74,6 +74,7 @@ suacui.df$area_tot <- sum(suacui.df$area_km)
 library(dplyr)
 library(ggplot2)
 library(gridExtra)
+library(textclean)
 
 g0 <- filter(guandu.df,!(Uso == "Aeroporto")) #para tirar o aeroporto!
 area_tot_g <- sum(guandu.df$area_km)  #area total da UPH
@@ -96,7 +97,7 @@ g2<-g1%>%
 add_row(Uso = "edificada", sum =sum((bind_rows((g1[7,]), (g1[9,]))$sum)), per=sum((bind_rows((g1[7,]), (g1[9,]))$per)), novo_uso = "Edificada")
 #o ultimo add_row é pra add uma linha juntando rodovias+areas_urbanas
 
-g2<-filter(g2,!(Uso == "Rodovias" | Uso =="Áreas Urbanas")) #ara tirar essas linhas - preciso fazer isso por conta dos gráficos
+g2<-filter(g2,!(Uso == "Rodovias" | Uso =="Áreas Urbanas")) #para tirar essas linhas - preciso fazer isso por conta dos gráficos
 
 #para Caratinga
 area_tot_c <- sum(cara.df$area_km) #area total da UPH
@@ -238,7 +239,7 @@ suacui2 <- suacui1%>%
 
 suacui2<- filter(suacui2,!(Uso == "Rodovias" | Uso =="Áreas Urbanas"))
 
-#barplots ####
+##########  barplots ###############
 
 f1 <- ggplot(data = g2, aes(x=novo_uso, y=per, width=.5)) + # width faz a barra ficar mais fina (ou grossa)
   geom_bar(stat = "identity")+
@@ -404,7 +405,7 @@ f9 <- ggplot(data = suacui2, aes(x=novo_uso, y=per, width=.5)) + # width faz a b
   theme(plot.title = element_text(size=10))+
   theme(legend.position="none")
 
-#salvando figuras (com dados brutos e nao %)
+#salvando figuras (com  %)
 png("Figs/figura01b.png", res = 300, width = 2000, height = 1800)
 grid.arrange(f1, f2, f3, f4, f5, f6, f7, f8, f9, ncol =3)
 dev.off()
@@ -412,3 +413,122 @@ dev.off()
 #png("Figs/figura02.png", res = 300, width = 1400, height = 800)
 #grid.arrange( f4, f6, ncol =2)
 #dev.off()
+
+############# calculando a % da Veg Nativa que tá protegida em UCs #########
+
+all <- readOGR(dsn = "./Data/UC_todas", layer = "crop_all_bhrd",
+               encoding = 'UTF-8')
+mask_bhrd <- readOGR("./Data/BHRD_limites", layer = "mask_bhrd_albers",
+                     encoding = 'UTF-8')
+
+#DIVIDINDO POR UPH - unidade de planejamento hidrico
+# crop areas in each polygon of the mask
+
+crop1 <- crop(all, mask_bhrd[6,])#Para Piranga
+
+crop2 <- crop(all, mask_bhrd[7,])#para Piracicaba
+
+crop3 <- crop(all, mask_bhrd[8,])#para Sto Antonio
+
+crop4 <- crop(all, mask_bhrd[9,])#para Suaçuí Gde
+
+crop5 <- crop(all, mask_bhrd[10,])#para Caratinga
+
+crop6 <- crop(all, mask_bhrd[11,])#para Manhuaçu
+
+crop7 <- crop(all, mask_bhrd[12,])#para Baixo doce 1 - Sao Jose
+
+crop8 <- crop(all, mask_bhrd[13,])#para Baixo doce 2 - Guandu
+
+crop9 <- crop(all, mask_bhrd[14,])#para Santa Maria do Doce
+
+#criando novos tibbles com a info da area de veg nativa + area de UCs
+piranga3 <- filter(piranga2, Uso == "Vegetação Nativa")%>%
+  mutate(protected=sum(area(crop1)/1e+6))%>%
+  mutate(protected_per= (protected/sum)*100)%>%
+  mutate(name="Piranga")
+
+Pira3 <- filter(pira2, Uso == "Vegetação Nativa")%>%
+  mutate(protected=sum(area(crop2)/1e+6))%>%
+  mutate(protected_per= (protected/sum)*100)%>%
+  mutate(name="Piracicaba")
+
+antonio3 <- filter(antonio2, Uso == "Vegetação Nativa")%>%
+  mutate(protected=sum(area(crop3)/1e+6))%>%
+  mutate(protected_per= (protected/sum)*100)%>%
+  mutate(name="Santo Antonio")
+
+suacui3 <- filter(suacui2, Uso == "Vegetação Nativa")%>%
+  mutate(protected=sum(area(crop4)/1e+6))%>%
+  mutate(protected_per= (protected/sum)*100)%>%
+  mutate(name="Suacui Grande")
+
+cara3 <- filter(cara2, Uso == "Vegetação Nativa")%>%
+  mutate(protected=sum(area(crop5)/1e+6))%>%
+  mutate(protected_per= (protected/sum)*100)%>%
+  mutate(name="Caratinga")
+
+manhu3 <- filter(manhu2, Uso == "Vegetação Nativa")%>%
+  mutate(protected=sum(area(crop6)/1e+6))%>%
+  mutate(protected_per= (protected/sum)*100)%>%
+  mutate(name="Manhuaçu")
+
+jose3 <- filter(jose2, Uso == "Vegetação Nativa")%>%
+  mutate(protected=sum(area(crop7)/1e+6))%>%
+  mutate(protected_per= (protected/sum)*100)%>%
+  mutate(name="São José")
+
+guandu3 <- filter(g2, Uso == "Vegetação Nativa")%>%
+  mutate(protected=sum(area(crop8)/1e+6))%>%
+  mutate(protected_per= (protected/sum)*100)%>%
+  mutate(name="Guandu")
+
+maria3 <- filter(maria2, Uso == "Vegetação Nativa")%>%
+  mutate(protected=sum(area(crop9)/1e+6))%>%
+  mutate(protected_per= (protected/sum)*100)%>%
+  mutate(name="Sta Maria Doce")
+
+data <- rbind(piranga3, Pira3, antonio3, suacui3, cara3, manhu3, jose3, guandu3, maria3)
+
+datax <- select(data, "name")%>%
+ mutate(data$per)%>%
+  mutate (what = "per", "per", "per", "per", "per", "per", "per", "per","per")
+datay <- select(data, "name")%>%
+  mutate(data$protected_per)%>%
+  mutate (What = "Pro_per", "Pro_per", "Pro_per", "Pro_per", "Pro_per", "Pro_per", "Pro_per", "Pro_per","Pro_per")
+
+t1<-merge(datax, datay)#fail nao consegui...
+
+ggplot(data= data, aes(x=name, y=per, fill = protected_per,  width=.5)) + # width faz a barra ficar mais fina (ou grossa)
+  geom_bar(position="stack", stat="identity")+
+  scale_fill_manual(values=c('lightgray','black'))+
+  xlab("") +
+  ylab("Área UC e área total UPH (ha)") +
+  theme_classic() +
+  theme (axis.text = element_text(size = 7), axis.title=element_text(size=6),
+         axis.text.x=element_text(size=7, angle = 90),
+         panel.grid.major=element_blank(),
+         panel.grid.minor=element_blank(), panel.border=element_blank()) +
+  theme(axis.line.x = element_line(color="black", size = 0), ## to write x and y axis again, ja que removi da borda
+        axis.line.y = element_line(color="black", size = 0))+
+  theme(legend.position="none")
+
+
+f<-ggplot(data = data, aes(x=name, y=per,  width=.5)) + # width faz a barra ficar mais fina (ou grossa)
+  geom_bar(stat = "identity")
+f+geom_bar(data =data, aes(x=name, y=protected_per, width=.5))
+
+
++
+  xlab("") +
+  ylab("") +
+  scale_y_continuous(limits = c(0, 100),breaks=0:100*20) +
+  scale_x_discrete(breaks=c("Afloramento Rochoso", "Agua", "Areas Abertas (umidas + Secas)","Areas Agricolas", "Areas de Mineracao", "Areas de Reflorestamento",  "Pastagem", "Vegetacao Nativa", "Edificada"),
+                   labels=c("A_Rochosas", "Água", "A_Abertas", "Agricultura", "Mineração", "Reflorestada", "Pastagem", "Veg Nat", "Edificada"))+
+  theme_classic() +
+  theme (axis.text = element_text(size = 7), axis.title=element_text(size=8),
+         axis.text.x=element_text(size = 7, angle = 90), axis.text.y = element_blank(),
+         panel.grid.major=element_blank(),
+         panel.grid.minor=element_blank(), panel.border=element_blank()) +
+  theme(axis.line.x = element_line(color="black", size = 0), ## to write x and y axis again, ja que removi da borda
+        axis.line.y = element_line(color="black", size = 0))
