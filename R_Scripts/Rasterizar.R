@@ -1,10 +1,15 @@
 ## =========== rasterizar os shapefiles. resolução 1 km ======= ##
-## ================== talita - julho 2020 ====================== ##
+## ================== time - julho 2020 ====================== ##
 
 #pacotes
 library(rgdal)
 library(raster)
 library(rgeos)
+library(rasterVis)
+library(RColorBrewer)
+
+myPal <- RColorBrewer::brewer.pal('Set3', n=9) #para fazer a figura...
+myTheme <- rasterTheme(region = myPal)
 
 #loading files
 #das UPHs
@@ -25,67 +30,201 @@ antonio <- readOGR(dsn = "./Data/USO_ANA", layer = "uph_santo_antonio_uso2", enc
 
 jose <- readOGR(dsn = "./Data/USO_ANA", layer = "uph_sao_jose_uso2", encoding = 'UTF-8')
 
-mask <- readOGR(dsn = "./Data/BHRD_limites", layer = "mask_bhrd_albers", encoding = 'UTF-8')
-
 suacui <- readOGR(dsn = "./Data/USO_ANA", layer = "uph_suasui_grande_uso2", encoding = 'UTF-8')
 
-#raster referencia
-ref <- raster::getData(name = "worldclim", var = "tmin", res = 0.5, lon = -40, lat = -20)
 
-#reading raster referencia (raster do WorldClim que ja tem res de 1km)
-#ref <- raster("~/Talita/wc2.1_30s_tmin_01.tif")
+#rasterizando
+#===para guandu====
+nam <- unique(guandu$Uso)
+nam_df <- data.frame(ID = 1:length(nam), nam = nam)
+guandu$ID <- nam_df$ID[match(guandu$Uso,nam_df$nam)]
+r.raster <- raster()
+extent(r.raster) <- extent(guandu)
+res(r.raster) <- 100 # Define pixel size
 
-plot(ref) # dai dá pra ver q tem mtos layers
-#temos que usar só um, entao usaremos ref$tmin1_34
+g.r <- rasterize(guandu, r.raster, field = guandu$ID)
 
-crs(ref)
+g.r <- ratify(g.r)
+rat <- levels(g.r)[[1]]
+rat$names <- nam_df$nam
+rat$IDs <- nam_df$ID
+levels(g.r) <- rat
+projection(g.r)<- "+proj=utm +zone=23 +south +ellps=aust_SA +towgs84=-66.87,4.37,-38.52,0,0,0,0 +units=m +no_defs"
 
-#reprojecting os shapefiles, melhor. todos tem q ter o mesmo crs
-mask1 <- spTransform(mask, CRS("+proj=longlat +datum=WGS84"))
+png("./Figs/raster_figs/guandu.png")
+rasterVis::levelplot(g.r, par.settings = myTheme)
+dev.off()
 
-guandu1 <- spTransform(guandu, CRS("+proj=longlat +datum=WGS84"))
-caratinga1 <- spTransform(caratinga, CRS("+proj=longlat +datum=WGS84"))
-manhuacu1 <- spTransform(manhuacu, CRS("+proj=longlat +datum=WGS84"))
-piranga1 <- spTransform(piranga, CRS("+proj=longlat +datum=WGS84"))
-pira1 <- spTransform(pira, CRS("+proj=longlat +datum=WGS84"))
-antonio1 <- spTransform(antonio, CRS("+proj=longlat +datum=WGS84"))
-maria1 <- spTransform(maria, CRS("+proj=longlat +datum=WGS84"))
-jose1 <- spTransform(jose, CRS("+proj=longlat +datum=WGS84"))
-suacui1 <- spTransform(suacui, CRS("+proj=longlat +datum=WGS84"))
+#====para pira====
+nam <- unique(pira$Uso)
+nam_df <- data.frame(ID = 1:length(nam), nam = nam)
+pira$ID <- nam_df$ID[match(pira$Uso,nam_df$nam)]
+r.raster <- raster()
+extent(r.raster) <- extent(pira)
+res(r.raster) <- 100 # Define pixel size
 
-#croping o raster ref para as diferentes UPHs.
-ref_g<-crop(ref$tmin1_34, mask1[13,]) #croping para guandu para guandu
-ref_p <- crop(ref$tmin1_34, mask1[6,])#Para Piranga
-ref_pira <- crop(ref$tmin1_34, mask1[7,])#Para Piracicaba
-ref_sa <- crop(ref$tmin1_34, mask1[8,])#Para Sto Antonio
-ref_sgde <- crop(ref$tmin1_34, mask1[9,])#Para Suacui Gde
-ref_c <- crop(ref$tmin1_34, mask1[10,])#Para Caratinga
-ref_m <- crop(ref$tmin1_34, mask1[11,])#Para Manhauçu
-ref_sj <- crop(ref$tmin1_34, mask1[12,])#Para Sao Jose
-ref_sm <- crop(ref$tmin1_34, mask1[14,])#Para Sta Maria do doce
+pira.r <- rasterize(pira, r.raster, field = pira$ID)
+
+pira.r <- ratify(pira.r)
+rat <- levels(pira.r)[[1]]
+rat$names <- nam_df$nam
+rat$IDs <- nam_df$ID
+levels(pira.r) <- rat
+projection(pira.r)<- "+proj=utm +zone=23 +south +ellps=aust_SA +towgs84=-66.87,4.37,-38.52,0,0,0,0 +units=m +no_defs"
+
+png("./Figs/raster_figs/pira.png")
+rasterVis::levelplot(pira.r, par.settings = myTheme)
+dev.off()
+
+#====para piranga====
+nam <- unique(piranga$Uso)
+nam_df <- data.frame(ID = 1:length(nam), nam = nam)
+piranga$ID <- nam_df$ID[match(piranga$Uso,nam_df$nam)]
+r.raster <- raster()
+extent(r.raster) <- extent(piranga)
+res(r.raster) <- 100 # Define pixel size
+
+piranga.r <- rasterize(piranga, r.raster, field = piranga$ID)
+
+piranga.r <- ratify(piranga.r)
+rat <- levels(piranga.r)[[1]]
+rat$names <- nam_df$nam
+rat$IDs <- nam_df$ID
+levels(piranga.r) <- rat
+projection(piranga.r)<- "+proj=utm +zone=23 +south +ellps=aust_SA +towgs84=-66.87,4.37,-38.52,0,0,0,0 +units=m +no_defs"
+
+png("./Figs/raster_figs/piranga.png")
+rasterVis::levelplot(piranga.r, par.settings = myTheme)
+dev.off()
+
+#====para caratinga====
+nam <- unique(caratinga$Uso)
+nam_df <- data.frame(ID = 1:length(nam), nam = nam)
+caratinga$ID <- nam_df$ID[match(caratinga$Uso,nam_df$nam)]
+r.raster <- raster()
+extent(r.raster) <- extent(caratinga)
+res(r.raster) <- 100 # Define pixel size
+
+caratinga.r <- rasterize(caratinga, r.raster, field = caratinga$ID)
+
+caratinga.r <- ratify(caratinga.r)
+rat <- levels(caratinga.r)[[1]]
+rat$names <- nam_df$nam
+rat$IDs <- nam_df$ID
+levels(caratinga.r) <- rat
+projection(caratinga.r)<- "+proj=utm +zone=23 +south +ellps=aust_SA +towgs84=-66.87,4.37,-38.52,0,0,0,0 +units=m +no_defs"
+
+png("./Figs/raster_figs/caratinga.png")
+rasterVis::levelplot(caratinga.r, par.settings = myTheme)
+dev.off()
+
+#====para manhuaçu====
+nam <- unique(manhuacu$Uso)
+nam_df <- data.frame(ID = 1:length(nam), nam = nam)
+manhuacu$ID <- nam_df$ID[match(manhuacu$Uso,nam_df$nam)]
+r.raster <- raster()
+extent(r.raster) <- extent(manhuacu)
+res(r.raster) <- 100 # Define pixel size
+
+manhuacu.r <- rasterize(manhuacu, r.raster, field = manhuacu$ID)
+
+manhuacu.r <- ratify(manhuacu.r)
+rat <- levels(manhuacu.r)[[1]]
+rat$names <- nam_df$nam
+rat$IDs <- nam_df$ID
+levels(manhuacu.r) <- rat
+projection(manhuacu.r)<- "+proj=utm +zone=23 +south +ellps=aust_SA +towgs84=-66.87,4.37,-38.52,0,0,0,0 +units=m +no_defs"
+
+png("./Figs/raster_figs/manhuacu.png")
+rasterVis::levelplot(manhuacu.r, par.settings = myTheme)
+dev.off()
+
+#====para suacui====
+nam <- unique(suacui$Uso)
+nam_df <- data.frame(ID = 1:length(nam), nam = nam)
+suacui$ID <- nam_df$ID[match(suacui$Uso,nam_df$nam)]
+r.raster <- raster()
+extent(r.raster) <- extent(suacui)
+res(r.raster) <- 100 # Define pixel size
+
+suacui.r <- rasterize(suacui, r.raster, field = suacui$ID)
+
+suacui.r <- ratify(suacui.r)
+rat <- levels(suacui.r)[[1]]
+rat$names <- nam_df$nam
+rat$IDs <- nam_df$ID
+levels(suacui.r) <- rat
+projection(suacui.r)<- "+proj=utm +zone=23 +south +ellps=aust_SA +towgs84=-66.87,4.37,-38.52,0,0,0,0 +units=m +no_defs"
+
+png("./Figs/raster_figs/suacui.png")
+rasterVis::levelplot(suacui.r, par.settings = myTheme)
+dev.off()
+
+#====para Santa Maria do Doce====
+nam <- unique(maria$Uso)
+nam_df <- data.frame(ID = 1:length(nam), nam = nam)
+maria$ID <- nam_df$ID[match(maria$Uso,nam_df$nam)]
+r.raster <- raster()
+extent(r.raster) <- extent(maria)
+res(r.raster) <- 100 # Define pixel size
+
+maria.r <- rasterize(maria, r.raster, field = maria$ID)
+
+maria.r <- ratify(maria.r)
+rat <- levels(maria.r)[[1]]
+rat$names <- nam_df$nam
+rat$IDs <- nam_df$ID
+levels(maria.r) <- rat
+projection(maria.r)<- "+proj=utm +zone=23 +south +ellps=aust_SA +towgs84=-66.87,4.37,-38.52,0,0,0,0 +units=m +no_defs"
+
+png("./Figs/raster_figs/maria.png")
+rasterVis::levelplot(maria.r, par.settings = myTheme)
+dev.off()
+
+#====para São Jose====
+nam <- unique(jose$Uso)
+nam_df <- data.frame(ID = 1:length(nam), nam = nam)
+jose$ID <- nam_df$ID[match(jose$Uso,nam_df$nam)]
+r.raster <- raster()
+extent(r.raster) <- extent(jose)
+res(r.raster) <- 100 # Define pixel size
+
+jose.r <- rasterize(jose, r.raster, field =jose$ID)
+
+jose.r <- ratify(jose.r)
+rat <- levels(jose.r)[[1]]
+rat$names <- nam_df$nam
+rat$IDs <- nam_df$ID
+levels(jose.r) <- rat
+projection(jose.r)<- "+proj=utm +zone=23 +south +ellps=aust_SA +towgs84=-66.87,4.37,-38.52,0,0,0,0 +units=m +no_defs"
+
+png("./Figs/raster_figs/jose.png")
+rasterVis::levelplot(jose.r, par.settings = myTheme)
+dev.off()
 
 
-#para rasterizar: rasterize(x, y, field = z), onde x é seu shapefile de polígonos, y é o raster de referência, z é o nome da variável do shapefile que vc quer que entre nos valores do raster
+#====para Santo Antonio====
+nam <- unique(antonio$Uso)
+nam_df <- data.frame(ID = 1:length(nam), nam = nam)
+antonio$ID <- nam_df$ID[match(antonio$Uso,nam_df$nam)]
+r.raster <- raster()
+extent(r.raster) <- extent(antonio)
+res(r.raster) <- 100 # Define pixel size
 
-#rasterizando:
-g.r <- rasterize(guandu1, ref_g, field = as.factor(guandu1$Uso))
-pira.r<-rasterize(pira1, ref_pira, field = as.factor(pira1$Uso))
-piranga.r<-rasterize(piranga1, ref_p, field = as.factor(piranga1$Uso))
-caratinga.r<-rasterize(caratinga1, ref_c, field = as.factor(caratinga1$Uso))
-manhuacu.r<-rasterize(manhuacu1, ref_m, field = as.factor(manhuacu1$Uso))
-suacui.r<-rasterize(suacui1, ref_sgde, field = as.factor(suacui1$Uso))
-antonio.r<-rasterize(antonio1, ref_sa, field = as.factor(antonio1$Uso))
-maria.r<-rasterize(maria1, ref_sm, field = as.factor(maria1$Uso))
-jose.r<-rasterize(jose1, ref_sj, field = as.factor(jose1$Uso))
+antonio.r <- rasterize(antonio, r.raster, field = antonio$ID)
 
-plot(g.r)
-g.r@data
+antonio.r<- ratify(antonio.r)
+rat <- levels(antonio.r)[[1]]
+rat$names <- nam_df$nam
+rat$IDs <- nam_df$ID
+levels(antonio.r) <- rat
+projection(antonio.r)<- "+proj=utm +zone=23 +south +ellps=aust_SA +towgs84=-66.87,4.37,-38.52,0,0,0,0 +units=m +no_defs"
 
-plot(pira.r)
-plot(caratinga.r)
+png("./Figs/raster_figs/antonio.png")
+rasterVis::levelplot(antonio.r, par.settings = myTheme)
+dev.off()
 
-
-#writing o raster
+#writing os rasters
 writeRaster(g.r, './Outputs/guandu_raster.tif', overwrite=TRUE)
 writeRaster(pira.r, './Outputs/pira_raster.tif', overwrite=TRUE)
 writeRaster(piranga.r, './Outputs/piranga_raster.tif', overwrite=TRUE)
@@ -97,12 +236,6 @@ writeRaster(antonio.r, './Outputs/sto_antonio_raster.tif', overwrite=TRUE)
 writeRaster(jose.r, './Outputs/sao_jose_raster.tif', overwrite=TRUE)
 
 
-showClass("RasterLayer")
-getValues(g.r)
 
-library(landscapemetrics)
 
-check_landscape(g.r)
-extract_lsm(g.r)
-lsm_c_ai(g.r)
-levels(guandu1$Uso)
+
